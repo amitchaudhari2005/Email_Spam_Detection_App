@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Dashboard - Dark Mode</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #eaeaea;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .card {
+            background-color: #292929;
+            border: 1px solid #444;
+            color: #f0f0f0;
+            transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            background-color: #333;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
+            background-color: #333;
+            color: #00bcd4;
+            font-weight: bold;
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .list-group-item {
+            background-color: #292929;
+            border: none;
+            color: #ccc;
+            padding: 1.2rem;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .list-group-item:hover {
+            background-color: #444;
+            color: #00bcd4;
+        }
+
+        .btn-danger, .btn-primary {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-danger:hover, .btn-primary:hover {
+            transform: scale(1.05);
+        }
+
+        .email-subject {
+            font-size: 1.2rem;
+            color: #00e676;
+            background-color: #333;
+            padding: 0.6rem;
+            border-radius: 5px;
+        }
+
+        .email-body {
+            font-size: 1rem;
+            color: #ccc;
+            margin-top: 5px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            background-color: #222;
+            padding: 1.2rem;
+            border-radius: 5px;
+        }
+
+        .container {
+            padding-top: 30px;
+            text-align: center;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #00bcd4;
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .fab:hover {
+            background-color: #008c9e;
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                margin-bottom: 15px;
+            }
+
+            .email-subject, .email-body {
+                font-size: 1rem;
+            }
+
+            .card-header {
+                padding: 1rem;
+            }
+
+            .btn {
+                font-size: 0.9rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .search-bar {
+                margin-bottom: 15px;
+            }
+
+            .fab {
+                bottom: 15px;
+                right: 15px;
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+
+            .card-header {
+                font-size: 1rem;
+            }
+
+            .btn-primary, .btn-danger {
+                font-size: 0.9rem;
+            }
+
+            .email-subject {
+                font-size: 1rem;
+            }
+
+            .email-body {
+                font-size: 0.9rem;
+            }
+
+            .list-group-item {
+                padding: 0.8rem;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container my-5">
+    <div class="d-flex justify-content-center align-items-center mb-4">
+        <h1>Welcome, {{ email }}</h1>
+    </div>
+
+    <div class="d-flex justify-content-center mb-4">
+        <a href="{{ url_for('fetch_emails') }}" class="btn btn-primary me-2">Fetch Latest Emails</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <input type="text" class="form-control" placeholder="Search emails by subject or sender..." id="searchInput">
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-lg">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Spam Emails</h5>
+                    <p id="spamCount" class="card-text fs-3">{{ spam_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-lg">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Not Spam Emails</h5>
+                    <p id="notSpamCount" class="card-text fs-3">{{ not_spam_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-lg">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Total Images</h5>
+                    <p id="imageCount" class="card-text fs-3">{{ total_images }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bar chart to show Spam vs Not Spam -->
+    <div class="chart-container">
+        <canvas id="barChart"></canvas>
+    </div>
+
+    <!-- Bar chart to show received emails per day -->
+    <div class="chart-container">
+        <canvas id="emailsReceivedBarChart"></canvas>
+    </div>
+
+    <div class="email-container">
+        {% for group in email_groups %}
+        <div class="card mb-4 shadow-lg">
+            <div class="card-header">
+                Group of Similar Emails ({{ group|length }} emails)
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for email in group %}
+                <li class="list-group-item">
+                    <div class="email-subject"><strong>Subject:</strong> {{ email.subject }}</div>
+                    <div class="email-body">
+                        <strong>Body:</strong>
+                        <div class="email-preview" id="preview-{{ email.id }}">
+                            {{ email.body[:200]|safe }}{% if email.body|length > 200 %}...{% endif %}
+                        </div>
+                        <div class="email-full d-none" id="full-{{ email.id }}">
+                            {{ email.body|safe }}
+                        </div>
+                    </div>
+                    <a href="javascript:void(0)" class="read-more" onclick="toggleReadMore('{{ email.id }}')">Read More</a>
+                    <div class="mt-2">
+                        <span><strong>Spam:</strong> {{ 'Yes' if email.is_spam else 'No' }}</span> |
+                        <span><strong>Images:</strong> {{ email.image_count }}</span> |
+                        <span><strong>Received:</strong> {{ email.received_date.strftime('%d-%m-%Y %H:%M') if email.received_date else 'Unknown' }}</span>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Floating Action Button -->
+<div class="fab">
+    <i class="bi bi-arrow-clockwise"></i>
+</div>
+
+<!-- Bootstrap + Socket.IO -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
+
+<!-- Real-time data fetching -->
+<script>
+    // Socket.io handling and chart updates
+    const socket = io();
+
+    setInterval(() => {
+        socket.emit('request_email_data');
+    }, 10000);
+
+    socket.on('update_email_data', function(data) {
+        document.getElementById('spamCount').textContent = data.spam_emails;
+        document.getElementById('notSpamCount').textContent = data.not_spam_emails;
+        document.getElementById('imageCount').textContent = data.image_emails;
+
+        // Update the charts with new data
+        updateCharts(data);
+    });
+
+    function updateCharts(data) {
+        // Bar chart data for Spam vs Not Spam
+        var barChartData = {
+            labels: ['Spam', 'Not Spam'],
+            datasets: [{
+                label: 'Email Count',
+                data: [data.spam_emails, data.not_spam_emails],
+                backgroundColor: ['#ff6347', '#32cd32'],
+                borderColor: '#fff',
+                borderWidth: 1
+            }]
+        };
+
+        var barChartConfig = {
+            type: 'bar',
+            data: barChartData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.raw + ' emails';
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        var barChart = new Chart(document.getElementById('barChart'), barChartConfig);
+
+        // Bar chart data for Received Emails per Day
+        var emailsReceivedBarChartData = {
+            labels: data.received_dates,
+            datasets: [{
+                label: 'Emails Received',
+                data: data.emails_received,
+                backgroundColor: '#00bcd4',
+                borderColor: '#008c9e',
+                borderWidth: 1
+            }]
+        };
+
+        var emailsReceivedBarChartConfig = {
+            type: 'bar',
+            data: emailsReceivedBarChartData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.raw + ' emails';
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        var emailsReceivedBarChart = new Chart(document.getElementById('emailsReceivedBarChart'), emailsReceivedBarChartConfig);
+    }
+</script>
+
+</body>
+</html>

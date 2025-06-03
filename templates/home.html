@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Email Spam Detection - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --light-bg: #f5f5f5;
+      --dark-bg: #1a1a2e;
+      --light-text: #333;
+      --dark-text: #f0f0f0;
+      --card-light: #fff;
+      --card-dark: #2c2c3e;
+      --accent: #007bff;
+      --accent-dark: #0056b3;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--light-bg);
+      color: var(--light-text);
+      text-align: center;
+      padding: 50px 20px;
+      transition: all 0.4s ease;
+    }
+
+    body.dark-mode {
+      background: var(--dark-bg);
+      color: var(--dark-text);
+    }
+
+    .toggle-btn {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      padding: 10px 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s ease;
+    }
+
+    .container {
+      background: var(--card-light);
+      padding: 50px 30px;
+      border-radius: 15px;
+      display: inline-block;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      transition: background 0.4s, box-shadow 0.3s;
+    }
+
+    body.dark-mode .container {
+      background: var(--card-dark);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 32px;
+    }
+
+    p {
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+
+    a {
+      text-decoration: none;
+      padding: 12px 24px;
+      margin: 10px;
+      background-color: var(--accent);
+      color: white;
+      border-radius: 8px;
+      font-weight: bold;
+      display: inline-block;
+      transition: transform 0.2s ease, box-shadow 0.3s ease, background-color 0.3s;
+    }
+
+    a:hover {
+      background-color: var(--accent-dark);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 16px rgba(0, 123, 255, 0.4);
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 30px 20px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      a {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-btn" onclick="toggleMode()">Toggle Dark Mode</button>
+
+  <div class="container">
+    <h1>Email Spam Detection System</h1>
+    <p>Welcome! Please register or log in to access your dashboard.</p>
+
+    <div>
+      <a href="{{ url_for('register') }}">Register</a>
+      <a href="{{ url_for('login') }}">Login</a>
+    </div>
+  </div>
+
+  <script>
+    function toggleMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+  </script>
+</body>
+</html>
